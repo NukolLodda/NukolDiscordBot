@@ -1,6 +1,5 @@
 package com.nukollodda.horniestbot;
 
-import com.nukollodda.horniestbot.listeners.MessageListener;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
