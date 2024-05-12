@@ -1,5 +1,7 @@
-package com.nukollodda.horniestbot;
+package net.nukollodda.horniestbot;
 
+import net.nukollodda.horniestbot.actions.Reactor;
+import net.nukollodda.horniestbot.actions.Replier;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -18,7 +20,8 @@ public class HorniestBot {
                 .setActivity(Activity.watching("geschlechtsverkehr"))
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT);
         shardManager = builder.build();
-        shardManager.addEventListener(new MessageListener());
+        shardManager.addEventListener(new Reactor());
+        shardManager.addEventListener(new Replier());
         // 593885999918161 - permission integer
     }
 
