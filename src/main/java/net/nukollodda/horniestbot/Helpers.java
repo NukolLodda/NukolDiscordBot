@@ -3,13 +3,11 @@ package net.nukollodda.horniestbot;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Predicate;
+
 public class Helpers {
-    @Contract(pure = true)
-    public static boolean containsOne(String org, @NotNull String... strs) {
-        for (String str : strs) {
-            if (org.contains(str)) return true;
-        }
-        return false;
+    public static boolean containsOne(@NotNull String org, @NotNull String... strs) {
+        return forLoopBoolean(org::contains, strs);
     }
 
     @Contract(pure = true)
@@ -20,12 +18,12 @@ public class Helpers {
         return true;
     }
 
-    @Contract(pure = true)
-    public static boolean isEither(String org, @NotNull String... strs) {
-        for (String str : strs) {
-            if (org.equals(str)) return true;
-        }
-        return false;
+    public static boolean isEither(@NotNull String org, @NotNull String... strs) {
+        return forLoopBoolean(org::equals, strs);
+    }
+
+    public static boolean startsWithEither(@NotNull String org, @NotNull String... strs) {
+        return forLoopBoolean(org::startsWith, strs);
     }
 
     @Contract(pure = true)
@@ -55,5 +53,13 @@ public class Helpers {
             if (ind >= start) return ind;
         }
         return -1;
+    }
+
+    @SafeVarargs
+    public static <T> boolean forLoopBoolean(Predicate<T> predicate, @NotNull T... types) {
+        for (T type : types) {
+            if (predicate.test(type)) return true;
+        }
+        return false;
     }
 }
