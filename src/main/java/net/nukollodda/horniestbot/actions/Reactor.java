@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 public class Reactor extends ListenerAdapter {
     public static final String SEX = "geschlechtsverkehr";
@@ -16,7 +17,7 @@ public class Reactor extends ListenerAdapter {
         this.config = config;
     }
 
-    private void react(Message msg, Emoji emoji) {
+    private void react(@NotNull Message msg, Emoji emoji) {
         msg.addReaction(emoji).queue();
     }
 

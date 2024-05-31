@@ -98,7 +98,7 @@ public class Replier extends ListenerAdapter {
         }
         if (rawMsg.startsWith("]hb ")) {
             command(event, rawMsg.substring(4).toLowerCase().split(" "));
-        } else if (Helpers.isEither(event.getChannel().getName(), "gnarly-shits", "secretsch")) {
+        } /* else if (Helpers.isEither(event.getChannel().getName(), "gnarly-shits", "secretsch")) {
             MessageChannelUnion channel = event.getChannel();
             if (conversation == null) {
                 conversation = new Conversation();
@@ -106,7 +106,7 @@ public class Replier extends ListenerAdapter {
             }
             conversation.addResponse(message);
             conversation.makeResponse();
-        }
+        }*/
     }
 
     private void command(@NotNull MessageReceivedEvent event, String[] cmdThread) {

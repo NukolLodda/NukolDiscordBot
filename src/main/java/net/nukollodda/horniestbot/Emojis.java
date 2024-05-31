@@ -43,4 +43,5 @@ public class Emojis {
     public static final Emoji E_37 = Emoji.fromCustom(new CustomEmojiImpl("maximal_horkneeness", 1243192343658762250L, false));
     public static final Emoji E_38 = Emoji.fromCustom(new CustomEmojiImpl("enbytious", 1243203094691577959L, false));
     public static final Emoji E_39 = Emoji.fromCustom(new CustomEmojiImpl("transwug", 1243244946350276810L, false));
+    public static final Emoji E_40 = Emoji.fromCustom(new CustomEmojiImpl("inter", 1246227018710782064L, false));
 }

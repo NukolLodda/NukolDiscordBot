@@ -28,7 +28,7 @@ public class Conversation {
         String rawMsg = message.getContentRaw();
         int verbInd = Helpers.findIndexEitherOf(rawMsg,
                 "shove", "shoving", "eat", "have sex", "has sex", "had sex", "fuck", "shit", "shat", "top", "bottom",
-                "hump", "lick", "suck", "cum", "cvm", "burn", "hurt", "itch", "thought");
+                "hump", "lick", "suck", "cum", "cvm", "burn", "hurt", "itch", "thought", "is", "are", "was", "were", "am");
         if (verbInd >= 0) {
             KeywordPair pair = KeywordPair.pairMaker(rawMsg, verbInd);
             pairs.add(pair);
