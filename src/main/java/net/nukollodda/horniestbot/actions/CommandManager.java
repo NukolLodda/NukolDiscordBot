@@ -180,12 +180,12 @@ public class CommandManager extends ListenerAdapter {
                         case "roles" ->
                                 "The roles command (name) lists out a list of available self-assignable roles on the server";
                         case "pin" ->
-                                "The pin command () pins the message before the command or the message the user replied to.";
+                                "The pin command (back) pins the message before the command or the message the user replied to.";
                         case "pronoun" -> "The pronoun command (name) assigns you to your preferred pronouns";
                         case "story" ->
                                 rightChannel ? "The story command (page) is for flipping to a page of the story 偏屈な愛, written by NukolLodda himself, by default, or if a book name is entered (name, page) then it's either howtosex# where # indicates 2, 3, or 4, or smut" : NOT_AVIAL;
                         case "unpin" ->
-                                "The unpin command () unpins the message before the command or the message the user replied to, assuming it was already pinned";
+                                "The unpin command (back) unpins the message before the command or the message the user replied to, assuming it was already pinned";
                         default -> erMsg.formatted(title, reference);
                     };
                 } else {
