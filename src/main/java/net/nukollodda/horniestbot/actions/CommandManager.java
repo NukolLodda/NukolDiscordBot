@@ -436,7 +436,8 @@ public class CommandManager extends ListenerAdapter {
                                             String sec = pg.substring(ini, Math.min(ini + 2000, len));
                                             int ind = sec.lastIndexOf("\n");
                                             if (sec.isEmpty()) continue;
-                                            event.getChannel().sendMessage(sec.substring(0, ind)).queue();
+                                            String subsec = sec.substring(0, ind);
+                                            if (!subsec.isEmpty()) event.getChannel().sendMessage(subsec).queue();
                                             ini = ini + ind;
                                         }
                                     } catch (FileNotFoundException ignored) {
