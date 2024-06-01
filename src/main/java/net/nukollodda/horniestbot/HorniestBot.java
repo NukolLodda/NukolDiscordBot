@@ -1,5 +1,6 @@
 package net.nukollodda.horniestbot;
 
+import net.nukollodda.horniestbot.actions.CommandManager;
 import net.nukollodda.horniestbot.actions.Reactor;
 import net.nukollodda.horniestbot.actions.Replier;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -23,6 +24,7 @@ public class HorniestBot {
         shardManager = builder.build();
         shardManager.addEventListener(new Reactor(config));
         shardManager.addEventListener(new Replier());
+        shardManager.addEventListener(new CommandManager());
         // 593885999918161 - permission integer
     }
 

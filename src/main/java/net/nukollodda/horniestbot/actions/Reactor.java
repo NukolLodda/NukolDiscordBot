@@ -24,6 +24,7 @@ public class Reactor extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Message message = event.getMessage();
+        if (message.getAuthor().getName().equals("Horniest Bot")) return;
         String rawMsg = message.getContentRaw().toLowerCase();
         Emoji emoji = null;
 
@@ -37,7 +38,8 @@ public class Reactor extends ListenerAdapter {
 
         int md = Helpers.findIndexEitherOf(rawMsg, config.get("BRICK").split(" "));
         int me = Helpers.findIndexEitherOf(rawMsg, config.get("TRUNK").split(" "));
-        if (md >= 0 && (mb > md || mb > me) && me >= 0) {
+        if (md >= 0 && (mb > md || mb > me) && me >= 0 ||
+                Helpers.containsOne(rawMsg, "henkustuna ai", "bigoted love", "偏屈な愛")) {
             emoji = Emojis.E_36;
         }
 
