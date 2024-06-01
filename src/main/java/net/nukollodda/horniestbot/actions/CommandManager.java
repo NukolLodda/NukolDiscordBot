@@ -96,11 +96,10 @@ public class CommandManager extends ListenerAdapter {
                         .addChoice("thing", "whatever_this_is")
         ));
         data.add(Commands.slash("role", "Applies a self assignable role").addOptions(
-                new OptionData(OptionType.STRING, "remove", "removes a role you may or may not have", false)
-                        .addChoice("general peoples", "general")
-                        .addChoice("gnarly shitter", "gnarly")
-                        .addChoice("mental health", "mental"),
-                new OptionData(OptionType.STRING, "add", "adds a role you may or may not have", false)
+                new OptionData(OptionType.STRING, "action", "whether to add or to remove a role", true)
+                        .addChoice("add", "add")
+                        .addChoice("remove", "remove"),
+                new OptionData(OptionType.STRING, "role", "role to add or remove", true)
                         .addChoice("general peoples", "general")
                         .addChoice("gnarly shitter", "gnarly")
                         .addChoice("mental health", "mental")
@@ -110,7 +109,10 @@ public class CommandManager extends ListenerAdapter {
                 new OptionData(OptionType.INTEGER, "offset", "how far back is the comment supposed to be pinned at", false)
         ));
         data.add(Commands.slash("pronoun", "Assigns to your preferred pronouns").addOptions(
-                new OptionData(OptionType.STRING, "add", "what pronouns wdo you go by", false)
+                new OptionData(OptionType.STRING, "action", "whether to add or to remove a role", true)
+                        .addChoice("add", "add")
+                        .addChoice("remove", "remove"),
+                new OptionData(OptionType.STRING, "role", "pronoun to add or remove", true)
                         .addChoice("he/him", "he")
                         .addChoice("she/her", "she")
                         .addChoice("they/them", "they")
@@ -261,40 +263,38 @@ public class CommandManager extends ListenerAdapter {
             case "role" -> {
                 Guild guild = event.getGuild();
                 if (guild != null && member != null) {
-                    OptionMapping remove = event.getOption("remove");
-                    if (remove != null) {
-                        Role role = switch (remove.getAsString()) {
+                    OptionMapping action = event.getOption("action");
+                    OptionMapping roleOption = event.getOption("role");
+                    if (action != null && roleOption != null) {
+                        String act = action.getAsString();
+                        Role role = switch (roleOption.getAsString()) {
                             case "general" -> guild.getRoleById(1213242160380379176L);
                             case "gnarly" -> guild.getRoleById(1235958350336753724L);
                             case "mental" -> guild.getRoleById(1235958507627614340L);
                             default -> null;
                         };
                         if (role != null) {
-                            try {
-                                guild.addRoleToMember(member.getUser(), role).queue();
-                                msg = "role removed!";
-                            } catch (Exception ignored) {
-                                msg = erMsg.formatted(title, reference) + CANT_REMOVE;
+                            if (act.equals("add")) {
+                                try {
+                                    guild.addRoleToMember(member.getUser(), role).queue();
+                                    msg = "role added!";
+                                } catch (Exception ignored) {
+                                    msg = erMsg.formatted(title, reference) + NO_ROLE;
+                                }
+                            } else {
+                                try {
+                                    guild.addRoleToMember(member.getUser(), role).queue();
+                                    msg = "role removed!";
+                                } catch (Exception ignored) {
+                                    msg = erMsg.formatted(title, reference) + CANT_REMOVE;
+                                }
                             }
+                        } else {
+                            msg = erMsg.formatted(title, reference) + NO_ROLE;
                         }
                     }
-                    OptionMapping add = event.getOption("add");
-                    if (add != null) {
-                        Role role = switch (add.getAsString()) {
-                            case "general" -> guild.getRoleById(1213242160380379176L);
-                            case "gnarly" -> guild.getRoleById(1235958350336753724L);
-                            case "mental" -> guild.getRoleById(1235958507627614340L);
-                            default -> null;
-                        };
-                        if (role != null) {
-                            try {
-                                guild.addRoleToMember(member.getUser(), role).queue();
-                                msg = "role added!";
-                            } catch (Exception ignored) {
-                                msg = erMsg.formatted(title, reference) + NO_ROLE;
-                            }
-                        }
-                    }
+                } else {
+                    msg = erMsg.formatted(title, reference);
                 }
             }
             case "roles" -> msg = """
@@ -328,10 +328,11 @@ public class CommandManager extends ListenerAdapter {
             case "pronoun" -> {
                 Guild guild = event.getGuild();
                 if (guild != null && member != null) {
-                    OptionMapping remove = event.getOption("remove");
-                    OptionMapping add = event.getOption("add");
-                    if (remove != null) {
-                        Role role = switch (remove.getAsString()) {
+                    OptionMapping action = event.getOption("action");
+                    OptionMapping roleOption = event.getOption("role");
+                    if (action != null && roleOption != null) {
+                        String act = action.getAsString();
+                        Role role = switch (roleOption.getAsString()) {
                             case "he" -> guild.getRoleById(1213559767168196709L);
                             case "she" -> guild.getRoleById(1213559766106767470L);
                             case "they" -> guild.getRoleById(1213559764857135114L);
@@ -341,36 +342,27 @@ public class CommandManager extends ListenerAdapter {
                             default -> null;
                         };
                         if (role != null) {
-                            try {
-                                guild.addRoleToMember(member.getUser(), role).queue();
-                                msg = "role removed!";
-                            } catch (Exception ignored) {
-                                msg = erMsg.formatted(title, reference) + CANT_REMOVE;
+                            if (act.equals("add")) {
+                                try {
+                                    guild.addRoleToMember(member.getUser(), role).queue();
+                                    msg = "role added!";
+                                } catch (Exception ignored) {
+                                    msg = erMsg.formatted(title, reference) + NO_ROLE;
+                                }
+                            } else {
+                                try {
+                                    guild.addRoleToMember(member.getUser(), role).queue();
+                                    msg = "role removed!";
+                                } catch (Exception ignored) {
+                                    msg = erMsg.formatted(title, reference) + CANT_REMOVE;
+                                }
                             }
+                        } else {
+                            msg = erMsg.formatted(title, reference) + NO_ROLE;
                         }
-                    } else if (add != null) {
-                        Role role = switch (add.getAsString()) {
-                            case "he" -> guild.getRoleById(1213559767168196709L);
-                            case "she" -> guild.getRoleById(1213559766106767470L);
-                            case "they" -> guild.getRoleById(1213559764857135114L);
-                            case "it" -> guild.getRoleById(1229208789241040956L);
-                            case "ask" -> guild.getRoleById(1213559763246522408L);
-                            case "any" -> guild.getRoleById(1213559761908277331L);
-                            default -> null;
-                        };
-                        if (role != null) {
-                            try {
-                                guild.addRoleToMember(member.getUser(), role).queue();
-                                msg = "role added!";
-                            } catch (Exception ignored) {
-                                msg = erMsg.formatted(title, reference) + NO_ROLE;
-                            }
-                        }
-                    } else {
-                        msg = erMsg.formatted(title, reference) + INVALID_FORMAT;
                     }
                 } else {
-                    msg = erMsg.formatted(title, reference) + UNPROVIDED;
+                    msg = erMsg.formatted(title, reference);
                 }
             }
             case "story" -> {

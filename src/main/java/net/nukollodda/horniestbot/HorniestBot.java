@@ -25,7 +25,6 @@ public class HorniestBot {
         shardManager.addEventListener(new Reactor(config));
         shardManager.addEventListener(new Replier());
         shardManager.addEventListener(new CommandManager());
-        // 593885999918161 - permission integer
     }
 
     public Dotenv getConfig() {
