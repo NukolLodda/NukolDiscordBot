@@ -16,7 +16,6 @@ public class HorniestBot {
     public HorniestBot() {
         config = Dotenv.configure().ignoreIfMissing().load();
         String token = config.get("TOKEN");
-        System.out.println(config.get("SHADOW"));
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(token)
                 .setStatus(OnlineStatus.ONLINE)
                 .setActivity(Activity.watching("geschlechtsverkehr"))

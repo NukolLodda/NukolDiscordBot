@@ -28,7 +28,6 @@ public class Reactor extends ListenerAdapter {
         String rawMsg = message.getContentRaw().toLowerCase();
         Emoji emoji = null;
 
-
         int ma = Helpers.findIndexEitherOf(rawMsg, config.get("WORLDLOT").split(" "));
         int mb = Helpers.findIndexEitherOf(rawMsg, "x", "と");
         int mc = Helpers.findIndexEitherOf(rawMsg, ma, config.get("LILLIPAD").split(" "));

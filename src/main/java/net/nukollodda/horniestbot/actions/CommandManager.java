@@ -1,9 +1,6 @@
 package net.nukollodda.horniestbot.actions;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -14,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.nukollodda.horniestbot.Helpers;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +30,7 @@ public class CommandManager extends ListenerAdapter {
     private static final String NONEXISTENT = "\n(File does not exist)";
     private static final String NO_ROLE = "\n(No such role exists or can be applied)";
     private static final String CANT_REMOVE = "\n(Role cannot be removed)";
+    private static final String INVALID_ID = "\n(ID is invalid)";
 
     private static final String NOT_AVIAL = "this command is not available in this channel";
     private static final String NOT_THIS = "this option is not available in this channel";
@@ -55,6 +54,13 @@ public class CommandManager extends ListenerAdapter {
 
     private static void setCmds(@NotNull Event event) {
         List<CommandData> data = new ArrayList<>();
+        OptionData roleOption = new OptionData(OptionType.STRING, "action", "whether to add or to remove a role", true)
+                .addChoice("add", "add")
+                .addChoice("remove", "remove");
+        List<OptionData> pinOptions = List.of(
+                new OptionData(OptionType.INTEGER, "offset", "how far back is the comment supposed to be pinned at", false),
+                new OptionData(OptionType.STRING, "id", "the id of the message to be pinned", false));
+
         data.add(Commands.slash("help", "For help... yay").addOptions(
                 new OptionData(OptionType.STRING, "command", "name of the command you inquire help about", false)
                         .addChoice("help", "help")
@@ -88,30 +94,22 @@ public class CommandManager extends ListenerAdapter {
                 new OptionData(OptionType.STRING, "name", "name of the piece of media in question", true)
                         .addChoice("britney spears edit", "britney_spears_edit")
                         .addChoice("cucumber in peach", "cucumber_in_peach")
-                        .addChoice("deutsch", "deustch")
+                        .addChoice("deutsch", "deutsch")
                         .addChoice("hawt poosay", "hawt_poosay")
                         .addChoice("poosay", "poosay")
                         .addChoice("ranboob", "ranboob")
                         .addChoice("waffles", "waffles")
                         .addChoice("thing", "whatever_this_is")
         ));
-        data.add(Commands.slash("role", "Applies a self assignable role").addOptions(
-                new OptionData(OptionType.STRING, "action", "whether to add or to remove a role", true)
-                        .addChoice("add", "add")
-                        .addChoice("remove", "remove"),
+        data.add(Commands.slash("role", "Applies a self assignable role").addOptions(roleOption,
                 new OptionData(OptionType.STRING, "role", "role to add or remove", true)
                         .addChoice("general peoples", "general")
                         .addChoice("gnarly shitter", "gnarly")
                         .addChoice("mental health", "mental")
         ));
         data.add(Commands.slash("roles", "List out all roles available on the server and a basic description of them all"));
-        data.add(Commands.slash("pin", "Pins the message before the command").addOptions(
-                new OptionData(OptionType.INTEGER, "offset", "how far back is the comment supposed to be pinned at", false)
-        ));
-        data.add(Commands.slash("pronoun", "Assigns to your preferred pronouns").addOptions(
-                new OptionData(OptionType.STRING, "action", "whether to add or to remove a role", true)
-                        .addChoice("add", "add")
-                        .addChoice("remove", "remove"),
+        data.add(Commands.slash("pin", "Pins the message before the command").addOptions(pinOptions));
+        data.add(Commands.slash("pronoun", "Assigns to your preferred pronouns").addOptions(roleOption,
                 new OptionData(OptionType.STRING, "role", "pronoun to add or remove", true)
                         .addChoice("he/him", "he")
                         .addChoice("she/her", "she")
@@ -132,11 +130,9 @@ public class CommandManager extends ListenerAdapter {
                         .addChoice("cover", "cover")
                         .addChoice("prologue", "prologue")
                         .addChoice("name", "name"),
-                new OptionData(OptionType.INTEGER, "chapter", "page number of the story you'd like to read", false)
+                new OptionData(OptionType.INTEGER, "chapter", "chapter number of the story you'd like to read", false)
         ));
-        data.add(Commands.slash("unpin", "Unpins the message before the command").addOptions(
-                new OptionData(OptionType.INTEGER, "offset", "how far back is the comment supposed to be pinned at", false)
-        ));
+        data.add(Commands.slash("unpin", "Unpins the message before the command").addOptions(pinOptions));
         event.getJDA().updateCommands().addCommands(data).queue();
     }
 
@@ -162,14 +158,16 @@ public class CommandManager extends ListenerAdapter {
         };
         boolean rightChannel = Helpers.isEither(event.getChannel().getName().toLowerCase(), "gnarly-shits", "secretsch");
         boolean prematurelyFired = false;
-        String erMsg = rightChannel ? ERROR_MSG : ERROR_APPROPRIATE;
+        String erMsg = rightChannel ?
+                ERROR_MSG.formatted(title, reference) :
+                ERROR_APPROPRIATE.formatted(title, event.getUser().getName());
         String msg = ERROR_MSG.formatted(title, reference) + INVALID_FORMAT;
+        ReplyCallbackAction action = event.deferReply();
         switch (cmd) {
             case "help" -> {
                 OptionMapping option = event.getOption("command");
                 if (option != null) {
                     String op = option.getAsString();
-                    System.out.println(op);
                     msg = switch (op) {
                         case "help" -> "The help command (cmd) is if you need help on anything";
                         case "links" ->
@@ -190,7 +188,7 @@ public class CommandManager extends ListenerAdapter {
                     };
                 } else {
                     msg = """
-                            List of ]hb commands available:
+                            List of slash commands available:
                             help - For help... yay
                             links - To obtain some very interesting sites/videos
                             media - Pulls a video straight from Nukol's photo gallery!
@@ -233,15 +231,20 @@ public class CommandManager extends ListenerAdapter {
                                 rightChannel ? "[docs.google.com](<https://docs.google.com/document/d/1Lpz-6EUnepcuv1ruOvsEQ1G5R3RPr446Q9uwNyuzlrU/edit>)" : NOT_THIS;
                         case "tampon" ->
                                 rightChannel ? "[www.tiktok.com](<https://www.tiktok.com/@nukollodda/video/7295349814198340907>)" : NOT_THIS;
-                        default -> erMsg.formatted(title, reference) + NONEXISTENT;
+                        default -> {
+                            action = action.setEphemeral(true);
+                            yield erMsg.formatted(title, reference) + NONEXISTENT;
+                        }
                     };
                 } else {
+                    action = action.setEphemeral(true);
                     msg = erMsg.formatted(title, reference) + UNPROVIDED;
                 }
             }
             case "media" -> {
                 OptionMapping option = event.getOption("name");
                 if (!rightChannel) {
+                    action = action.setEphemeral(true);
                     msg = NOT_AVIAL;
                 } else if (option != null) {
                     msg = "your beautiful piece of media will arrive shortly " + addressee;
@@ -249,24 +252,26 @@ public class CommandManager extends ListenerAdapter {
                     try {
                         File file = new File("src/main/resources/assets/" + op + ".mp4");
                         FileUpload upload = FileUpload.fromData(file);
-                        event.reply(msg).queue();
+                        event.getHook().sendMessage(msg).queue();
                         prematurelyFired = true;
                         event.getChannel().sendMessage("heres your legendary piece of media "
                                 + title + " " + event.getUser().getName() + ", now enjoy").addFiles(upload).queue();
                     } catch (Exception ignored) {
+                        action = action.setEphemeral(true);
                         msg = erMsg.formatted(title, reference) + NONEXISTENT;
                     }
                 } else {
+                    action = action.setEphemeral(true);
                     msg = erMsg.formatted(title, reference) + UNPROVIDED;
                 }
             }
             case "role" -> {
                 Guild guild = event.getGuild();
                 if (guild != null && member != null) {
-                    OptionMapping action = event.getOption("action");
+                    OptionMapping actionMap = event.getOption("action");
                     OptionMapping roleOption = event.getOption("role");
-                    if (action != null && roleOption != null) {
-                        String act = action.getAsString();
+                    if (actionMap != null && roleOption != null) {
+                        String act = actionMap.getAsString();
                         Role role = switch (roleOption.getAsString()) {
                             case "general" -> guild.getRoleById(1213242160380379176L);
                             case "gnarly" -> guild.getRoleById(1235958350336753724L);
@@ -279,6 +284,7 @@ public class CommandManager extends ListenerAdapter {
                                     guild.addRoleToMember(member.getUser(), role).queue();
                                     msg = "role added!";
                                 } catch (Exception ignored) {
+                                    action = action.setEphemeral(true);
                                     msg = erMsg.formatted(title, reference) + NO_ROLE;
                                 }
                             } else {
@@ -286,14 +292,17 @@ public class CommandManager extends ListenerAdapter {
                                     guild.addRoleToMember(member.getUser(), role).queue();
                                     msg = "role removed!";
                                 } catch (Exception ignored) {
+                                    action = action.setEphemeral(true);
                                     msg = erMsg.formatted(title, reference) + CANT_REMOVE;
                                 }
                             }
                         } else {
+                            action = action.setEphemeral(true);
                             msg = erMsg.formatted(title, reference) + NO_ROLE;
                         }
                     }
                 } else {
+                    action = action.setEphemeral(true);
                     msg = erMsg.formatted(title, reference);
                 }
             }
@@ -313,25 +322,42 @@ public class CommandManager extends ListenerAdapter {
                     \s""";
             case "pin" -> {
                 OptionMapping option = event.getOption("offset");
-                int offset = 1;
-                if (option != null) {
-                    offset += option.getAsInt();
-                }
-                Message message = event.getChannel().getHistory().getRetrievedHistory().get(offset);
-                if (message.isPinned()) {
-                    msg = "bitch it was already pinned";
+                OptionMapping optionId = event.getOption("id");
+                if (optionId != null) {
+                    Message setToPin = event.getChannel().getHistory().getMessageById(optionId.getAsLong());
+                    if (setToPin != null) {
+                        action = action.setEphemeral(true);
+                        if (setToPin.isPinned()) {
+                            msg = "bitch this message was already pinned!";
+                        } else {
+                            setToPin.pin().queue();
+                            msg = "Message pinned!";
+                        }
+                    } else {
+                        msg = erMsg.formatted(title, reference) + INVALID_ID;
+                    }
                 } else {
-                    message.pin().queue();
-                    msg = "message pinned!";
+                    action = action.setEphemeral(true);
+                    int offset = 1;
+                    if (option != null) {
+                        offset += option.getAsInt();
+                    }
+                    Message setToPin = event.getChannel().getHistory().retrievePast(offset).complete().get(offset - 1);
+                    if (setToPin.isPinned()) {
+                        msg = "bitch this message was already pinned!";
+                    } else {
+                        setToPin.pin().queue();
+                        msg = "Message pinned!";
+                    }
                 }
             }
             case "pronoun" -> {
                 Guild guild = event.getGuild();
                 if (guild != null && member != null) {
-                    OptionMapping action = event.getOption("action");
+                    OptionMapping actionMap = event.getOption("action");
                     OptionMapping roleOption = event.getOption("role");
-                    if (action != null && roleOption != null) {
-                        String act = action.getAsString();
+                    if (actionMap != null && roleOption != null) {
+                        String act = actionMap.getAsString();
                         Role role = switch (roleOption.getAsString()) {
                             case "he" -> guild.getRoleById(1213559767168196709L);
                             case "she" -> guild.getRoleById(1213559766106767470L);
@@ -347,6 +373,7 @@ public class CommandManager extends ListenerAdapter {
                                     guild.addRoleToMember(member.getUser(), role).queue();
                                     msg = "role added!";
                                 } catch (Exception ignored) {
+                                    action = action.setEphemeral(true);
                                     msg = erMsg.formatted(title, reference) + NO_ROLE;
                                 }
                             } else {
@@ -354,29 +381,33 @@ public class CommandManager extends ListenerAdapter {
                                     guild.addRoleToMember(member.getUser(), role).queue();
                                     msg = "role removed!";
                                 } catch (Exception ignored) {
+                                    action = action.setEphemeral(true);
                                     msg = erMsg.formatted(title, reference) + CANT_REMOVE;
                                 }
                             }
                         } else {
+                            action = action.setEphemeral(true);
                             msg = erMsg.formatted(title, reference) + NO_ROLE;
                         }
                     }
                 } else {
+                    action = action.setEphemeral(true);
                     msg = erMsg.formatted(title, reference);
                 }
             }
             case "story" -> {
                 OptionMapping option = event.getOption("title");
+                action = action.setEphemeral(true);
                 if (rightChannel) {
                     if (option != null) {
                         String name = option.getAsString();
                         OptionMapping page = event.getOption("chapter");
                         OptionMapping section = event.getOption("additional");
                         String storyName = switch (name) {
+                            case "bigotedlove" -> "偏屈な愛";
                             case "howtosex2" -> "How to Sex 2";
                             case "howtosex3" -> "How to Sex 3";
                             case "howtosex4" -> "How to Sex 4";
-                            case "bigotedlove" -> "偏屈な愛";
                             case "smut" -> "Smut";
                             default -> "";
                         };
@@ -392,7 +423,7 @@ public class CommandManager extends ListenerAdapter {
                                 String chapterpg = response.toString();
                                 int ini = 0;
                                 int len = chapterpg.length();
-                                event.reply("Chapter " + chapter + " of " + storyName).queue();
+                                event.getHook().sendMessage("Chapter " + chapter + " of " + storyName).queue();
                                 prematurelyFired = true;
                                 while (ini < len) {
                                     String sec = chapterpg.substring(ini, Math.min(ini + 2000, len));
@@ -424,7 +455,7 @@ public class CommandManager extends ListenerAdapter {
                                     try {
                                         Scanner scanner = new Scanner(file);
                                         StringBuilder response = new StringBuilder("# Prologue #\n");
-                                        event.reply("The prologue of " + storyName).queue();
+                                        event.getHook().sendMessage("The prologue of " + storyName).queue();
                                         prematurelyFired = true;
                                         while (scanner.hasNextLine()) {
                                             response.append(scanner.nextLine()).append("\n");
@@ -446,8 +477,8 @@ public class CommandManager extends ListenerAdapter {
                                 } else {
                                     try {
                                         FileUpload upload = FileUpload.fromData(file);
-                                        event.reply(msg).queue();
-                                        event.reply("heres your book cover").addFiles(upload).queue();
+                                        event.getHook().sendMessage("heres your book cover").queue();
+                                        event.getChannel().sendMessage(name + " book cover").addFiles(upload).queue();
                                         prematurelyFired = true;
                                     } catch (Exception ignored) {
                                         msg = erMsg.formatted(title, reference) + NONEXISTENT;
@@ -464,21 +495,41 @@ public class CommandManager extends ListenerAdapter {
             }
             case "unpinned" -> {
                 OptionMapping option = event.getOption("offset");
-                int offset = 1;
-                if (option != null) {
-                    offset += option.getAsInt();
-                }
-                Message message = event.getChannel().getHistory().getRetrievedHistory().get(offset);
-                if (!message.isPinned()) {
-                    msg = "bitch it was never pinned";
+                OptionMapping optionId = event.getOption("id");
+                if (optionId != null) {
+                    Message setToPin = event.getChannel().getHistory().getMessageById(optionId.getAsLong());
+                    if (setToPin != null) {
+                        action = action.setEphemeral(true);
+                        if (!setToPin.isPinned()) {
+                            msg = "bitch this message was never pinned!";
+                        } else {
+                            setToPin.unpin().queue();
+                            msg = "Message unpinned!";
+                        }
+                    } else {
+                        msg = erMsg.formatted(title, reference) + INVALID_ID;
+                    }
                 } else {
-                    message.unpin().queue();
-                    msg = "message unpinned!";
+                    action = action.setEphemeral(true);
+                    int offset = 1;
+                    if (option != null) {
+                        offset += option.getAsInt();
+                    }
+                    Message setToPin = event.getChannel().getHistory().retrievePast(offset).complete().get(offset - 1);
+                    if (!setToPin.isPinned()) {
+                        msg = "bitch this message was never pinned!";
+                    } else {
+                        setToPin.unpin().queue();
+                        msg = "Message unpinned!";
+                    }
                 }
             }
         }
 
-        if (!prematurelyFired) event.reply(msg).queue();
+        if (!prematurelyFired) {
+            action.queue();
+            event.getHook().sendMessage(msg).queue();
+        }
     }
 
     @Override
