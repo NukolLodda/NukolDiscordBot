@@ -1,6 +1,7 @@
 package net.nukollodda.horniestbot.actions;
 
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.nukollodda.horniestbot.Conversation;
 import net.nukollodda.horniestbot.Emojis;
@@ -22,6 +23,8 @@ public class Replier extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Message message = event.getMessage();
+        Channel channel = event.getChannel();
+        String channelName = channel.getName().toLowerCase();
         if (message.getAuthor().getName().equals("Horniest Bot")) return;
 
         String rawMsg = message.getContentRaw().toLowerCase();
@@ -46,7 +49,12 @@ public class Replier extends ListenerAdapter {
             };
             event.getMessage().reply("Here's your drawing " + reference + ", enjoy.").addFiles(upload).queue();
         }
-        /*if (Helpers.isEither(event.getChannel().getName(), "gnarly-shits", "secretsch")) {
+        if (rawMsg.equals("gato interesante")) {
+            File file = new File("src/main/resources/assets/gato_interesante.png");
+            FileUpload upload = FileUpload.fromData(file);
+            event.getMessage().reply("El gato interesante de verdad").addFiles(upload).queue();
+        }
+        /*if (channelName.startsWith("gnarly") || channelName.equals("secretsch")) {
             MessageChannelUnion channel = event.getChannel();
             if (conversation == null) {
                 conversation = new Conversation();

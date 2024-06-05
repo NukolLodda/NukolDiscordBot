@@ -1,6 +1,7 @@
 package net.nukollodda.horniestbot.actions;
 
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -13,7 +14,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
-import net.nukollodda.horniestbot.Helpers;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -126,9 +126,9 @@ public class CommandManager extends ListenerAdapter {
                         .addChoice("how to sex 3", "howtosex3")
                         .addChoice("how to sex 4", "howtosex4")
                         .addChoice("smut", "smut"),
-                new OptionData(OptionType.STRING, "additional", "would you like the prologue or the cover of the story", false)
+                new OptionData(OptionType.STRING, "additional", "would you like the prelude or the cover of the story", false)
                         .addChoice("cover", "cover")
-                        .addChoice("prologue", "prologue")
+                        .addChoice("prelude", "prelude")
                         .addChoice("name", "name"),
                 new OptionData(OptionType.INTEGER, "chapter", "chapter number of the story you'd like to read", false)
         ));
@@ -156,12 +156,14 @@ public class CommandManager extends ListenerAdapter {
             case 'f' -> "ma'am";
             default -> "mx";
         };
-        boolean rightChannel = Helpers.isEither(event.getChannel().getName().toLowerCase(), "gnarly-shits", "secretsch");
+        MessageChannelUnion channel = event.getChannel();
+        String channelName = channel.getName().toLowerCase();
+        boolean rightChannel = channelName.equals("secretsch") || channelName.startsWith("gnarly");
         boolean prematurelyFired = false;
         String erMsg = rightChannel ?
                 ERROR_MSG.formatted(title, reference) :
                 ERROR_APPROPRIATE.formatted(title, event.getUser().getName());
-        String msg = ERROR_MSG.formatted(title, reference) + INVALID_FORMAT;
+        String msg = erMsg + INVALID_FORMAT;
         ReplyCallbackAction action = event.deferReply();
         switch (cmd) {
             case "help" -> {
@@ -184,7 +186,7 @@ public class CommandManager extends ListenerAdapter {
                                 rightChannel ? "The story command (page) is for flipping to a page of the story 偏屈な愛, written by NukolLodda himself, by default, or if a book name is entered (name, page) then it's either howtosex# where # indicates 2, 3, or 4, or smut" : NOT_AVIAL;
                         case "unpin" ->
                                 "The unpin command (back) unpins the message before the command or the message the user replied to, assuming it was already pinned";
-                        default -> erMsg.formatted(title, reference);
+                        default -> erMsg;
                     };
                 } else {
                     msg = """
@@ -233,12 +235,12 @@ public class CommandManager extends ListenerAdapter {
                                 rightChannel ? "[www.tiktok.com](<https://www.tiktok.com/@nukollodda/video/7295349814198340907>)" : NOT_THIS;
                         default -> {
                             action = action.setEphemeral(true);
-                            yield erMsg.formatted(title, reference) + NONEXISTENT;
+                            yield erMsg + NONEXISTENT;
                         }
                     };
                 } else {
                     action = action.setEphemeral(true);
-                    msg = erMsg.formatted(title, reference) + UNPROVIDED;
+                    msg = erMsg + UNPROVIDED;
                 }
             }
             case "media" -> {
@@ -252,17 +254,18 @@ public class CommandManager extends ListenerAdapter {
                     try {
                         File file = new File("src/main/resources/assets/" + op + ".mp4");
                         FileUpload upload = FileUpload.fromData(file);
+                        action.queue();
                         event.getHook().sendMessage(msg).queue();
                         prematurelyFired = true;
-                        event.getChannel().sendMessage("heres your legendary piece of media "
+                        channel.sendMessage("heres your legendary piece of media "
                                 + title + " " + event.getUser().getName() + ", now enjoy").addFiles(upload).queue();
                     } catch (Exception ignored) {
                         action = action.setEphemeral(true);
-                        msg = erMsg.formatted(title, reference) + NONEXISTENT;
+                        msg = erMsg + NONEXISTENT;
                     }
                 } else {
                     action = action.setEphemeral(true);
-                    msg = erMsg.formatted(title, reference) + UNPROVIDED;
+                    msg = erMsg + UNPROVIDED;
                 }
             }
             case "role" -> {
@@ -285,7 +288,7 @@ public class CommandManager extends ListenerAdapter {
                                     msg = "role added!";
                                 } catch (Exception ignored) {
                                     action = action.setEphemeral(true);
-                                    msg = erMsg.formatted(title, reference) + NO_ROLE;
+                                    msg = erMsg + NO_ROLE;
                                 }
                             } else {
                                 try {
@@ -293,17 +296,17 @@ public class CommandManager extends ListenerAdapter {
                                     msg = "role removed!";
                                 } catch (Exception ignored) {
                                     action = action.setEphemeral(true);
-                                    msg = erMsg.formatted(title, reference) + CANT_REMOVE;
+                                    msg = erMsg + CANT_REMOVE;
                                 }
                             }
                         } else {
                             action = action.setEphemeral(true);
-                            msg = erMsg.formatted(title, reference) + NO_ROLE;
+                            msg = erMsg + NO_ROLE;
                         }
                     }
                 } else {
                     action = action.setEphemeral(true);
-                    msg = erMsg.formatted(title, reference);
+                    msg = erMsg;
                 }
             }
             case "roles" -> msg = """
@@ -324,7 +327,7 @@ public class CommandManager extends ListenerAdapter {
                 OptionMapping option = event.getOption("offset");
                 OptionMapping optionId = event.getOption("id");
                 if (optionId != null) {
-                    Message setToPin = event.getChannel().getHistory().getMessageById(optionId.getAsLong());
+                    Message setToPin = channel.getHistory().getMessageById(optionId.getAsLong());
                     if (setToPin != null) {
                         action = action.setEphemeral(true);
                         if (setToPin.isPinned()) {
@@ -334,7 +337,7 @@ public class CommandManager extends ListenerAdapter {
                             msg = "Message pinned!";
                         }
                     } else {
-                        msg = erMsg.formatted(title, reference) + INVALID_ID;
+                        msg = erMsg + INVALID_ID;
                     }
                 } else {
                     action = action.setEphemeral(true);
@@ -342,7 +345,7 @@ public class CommandManager extends ListenerAdapter {
                     if (option != null) {
                         offset += option.getAsInt();
                     }
-                    Message setToPin = event.getChannel().getHistory().retrievePast(offset).complete().get(offset - 1);
+                    Message setToPin = channel.getHistory().retrievePast(offset).complete().get(offset - 1);
                     if (setToPin.isPinned()) {
                         msg = "bitch this message was already pinned!";
                     } else {
@@ -374,7 +377,7 @@ public class CommandManager extends ListenerAdapter {
                                     msg = "role added!";
                                 } catch (Exception ignored) {
                                     action = action.setEphemeral(true);
-                                    msg = erMsg.formatted(title, reference) + NO_ROLE;
+                                    msg = erMsg + NO_ROLE;
                                 }
                             } else {
                                 try {
@@ -382,17 +385,17 @@ public class CommandManager extends ListenerAdapter {
                                     msg = "role removed!";
                                 } catch (Exception ignored) {
                                     action = action.setEphemeral(true);
-                                    msg = erMsg.formatted(title, reference) + CANT_REMOVE;
+                                    msg = erMsg + CANT_REMOVE;
                                 }
                             }
                         } else {
                             action = action.setEphemeral(true);
-                            msg = erMsg.formatted(title, reference) + NO_ROLE;
+                            msg = erMsg + NO_ROLE;
                         }
                     }
                 } else {
                     action = action.setEphemeral(true);
-                    msg = erMsg.formatted(title, reference);
+                    msg = erMsg;
                 }
             }
             case "story" -> {
@@ -416,46 +419,48 @@ public class CommandManager extends ListenerAdapter {
                             File file = new File("src/main/resources/data/" + name + "/chapter" + chapter + ".txt");
                             try {
                                 Scanner scanner = new Scanner(file);
-                                StringBuilder response = new StringBuilder("# Chapter " + chapter + " #\n");
+                                StringBuilder response = new StringBuilder("# " + storyName + ": Chapter " + chapter + " #\n");
                                 while (scanner.hasNextLine()) {
                                     response.append(scanner.nextLine()).append("\n");
                                 }
                                 String chapterpg = response.toString();
                                 int ini = 0;
                                 int len = chapterpg.length();
-                                event.getHook().sendMessage("Chapter " + chapter + " of " + storyName).queue();
+                                action.queue();
+                                event.getHook().sendMessage(storyName).queue();
                                 prematurelyFired = true;
                                 while (ini < len) {
                                     String sec = chapterpg.substring(ini, Math.min(ini + 2000, len));
                                     int ind = sec.lastIndexOf("\n");
                                     if (sec.isEmpty()) continue;
                                     String subsec = sec.substring(0, ind);
-                                    if (!subsec.isEmpty()) event.getChannel().sendMessage(sec.substring(0, ind)).queue();
+                                    if (!subsec.isEmpty()) channel.sendMessage(sec.substring(0, ind)).queue();
                                     ini = ini + ind;
                                 }
                             } catch (FileNotFoundException ignored) {
-                                msg = erMsg.formatted(title, reference) + NONEXISTENT;
+                                msg = erMsg + NONEXISTENT;
                             }
                         } else if (section != null) {
                             String val = section.getAsString();
                             String loc = switch (val) {
                                 case "cover" -> "assets/" + name + "_cover.png";
-                                case "prologue" -> "data/" + name + "/prologue.txt";
+                                case "prelude" -> "data/" + name + "/prelude.txt";
                                 default -> "";
                             };
                             if (loc.isEmpty()) {
                                 if (val.equals("name")) {
-                                    msg = storyName.isEmpty() ? erMsg.formatted(title, reference) + NONEXISTENT : storyName;
+                                    msg = storyName.isEmpty() ? erMsg + NONEXISTENT : storyName;
                                 } else {
-                                    msg = erMsg.formatted(title, reference) + UNPROVIDED;
+                                    msg = erMsg + UNPROVIDED;
                                 }
                             } else {
                                 File file = new File("src/main/resources/" + loc);
                                 if (loc.endsWith(".txt")) {
                                     try {
                                         Scanner scanner = new Scanner(file);
-                                        StringBuilder response = new StringBuilder("# Prologue #\n");
-                                        event.getHook().sendMessage("The prologue of " + storyName).queue();
+                                        StringBuilder response = new StringBuilder("# Prelude #\n");
+                                        action.queue();
+                                        event.getHook().sendMessage("The prelude of " + storyName).queue();
                                         prematurelyFired = true;
                                         while (scanner.hasNextLine()) {
                                             response.append(scanner.nextLine()).append("\n");
@@ -468,25 +473,26 @@ public class CommandManager extends ListenerAdapter {
                                             int ind = sec.lastIndexOf("\n");
                                             if (sec.isEmpty()) continue;
                                             String subsec = sec.substring(0, ind);
-                                            if (!subsec.isEmpty()) event.getChannel().sendMessage(subsec).queue();
+                                            if (!subsec.isEmpty()) channel.sendMessage(subsec).queue();
                                             ini = ini + ind;
                                         }
                                     } catch (FileNotFoundException ignored) {
-                                        msg = erMsg.formatted(title, reference) + NONEXISTENT;
+                                        msg = erMsg + NONEXISTENT;
                                     }
                                 } else {
                                     try {
                                         FileUpload upload = FileUpload.fromData(file);
+                                        action.queue();
                                         event.getHook().sendMessage("heres your book cover").queue();
-                                        event.getChannel().sendMessage(name + " book cover").addFiles(upload).queue();
+                                        channel.sendMessage(name + " book cover").addFiles(upload).queue();
                                         prematurelyFired = true;
                                     } catch (Exception ignored) {
-                                        msg = erMsg.formatted(title, reference) + NONEXISTENT;
+                                        msg = erMsg + NONEXISTENT;
                                     }
                                 }
                             }
                         } else {
-                            msg = erMsg.formatted(title, reference) + INVALID_FORMAT;
+                            msg = erMsg + INVALID_FORMAT;
                     }
                     } else {
                         msg = NOT_AVIAL;
@@ -497,7 +503,7 @@ public class CommandManager extends ListenerAdapter {
                 OptionMapping option = event.getOption("offset");
                 OptionMapping optionId = event.getOption("id");
                 if (optionId != null) {
-                    Message setToPin = event.getChannel().getHistory().getMessageById(optionId.getAsLong());
+                    Message setToPin = channel.getHistory().getMessageById(optionId.getAsLong());
                     if (setToPin != null) {
                         action = action.setEphemeral(true);
                         if (!setToPin.isPinned()) {
@@ -507,7 +513,7 @@ public class CommandManager extends ListenerAdapter {
                             msg = "Message unpinned!";
                         }
                     } else {
-                        msg = erMsg.formatted(title, reference) + INVALID_ID;
+                        msg = erMsg + INVALID_ID;
                     }
                 } else {
                     action = action.setEphemeral(true);
@@ -515,7 +521,7 @@ public class CommandManager extends ListenerAdapter {
                     if (option != null) {
                         offset += option.getAsInt();
                     }
-                    Message setToPin = event.getChannel().getHistory().retrievePast(offset).complete().get(offset - 1);
+                    Message setToPin = channel.getHistory().retrievePast(offset).complete().get(offset - 1);
                     if (!setToPin.isPinned()) {
                         msg = "bitch this message was never pinned!";
                     } else {

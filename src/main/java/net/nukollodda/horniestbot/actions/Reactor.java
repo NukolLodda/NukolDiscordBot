@@ -67,6 +67,9 @@ public class Reactor extends ListenerAdapter {
             emoji = Emojis.E_25;
         }
         if (rawMsg.equals(SEX)) emoji = Emojis.E_1;
+        if (rawMsg.contains("transgenderism")) emoji = Emojis.E_9;
+        if (Helpers.containsOne(rawMsg, "horny jail", "horknee jail", "no sex")) emoji = Emojis.E_21;
+
         if (emoji != null) react(message, emoji);
     }
 }
