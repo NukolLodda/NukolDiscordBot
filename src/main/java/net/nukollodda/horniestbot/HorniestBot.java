@@ -23,7 +23,7 @@ public class HorniestBot {
         shardManager = builder.build();
         shardManager.addEventListener(new Reactor(config));
         shardManager.addEventListener(new Replier());
-        shardManager.addEventListener(new CommandManager());
+        shardManager.addEventListener(new CommandManager(config));
     }
 
     public Dotenv getConfig() {
