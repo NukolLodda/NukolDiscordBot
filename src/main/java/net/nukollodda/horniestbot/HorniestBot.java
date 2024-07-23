@@ -1,6 +1,7 @@
 package net.nukollodda.horniestbot;
 
 import net.nukollodda.horniestbot.actions.CommandManager;
+import net.nukollodda.horniestbot.actions.GaymingActions;
 import net.nukollodda.horniestbot.actions.Reactor;
 import net.nukollodda.horniestbot.actions.Replier;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -24,6 +25,7 @@ public class HorniestBot {
         shardManager.addEventListener(new Reactor(config));
         shardManager.addEventListener(new Replier());
         shardManager.addEventListener(new CommandManager(config));
+        shardManager.addEventListener(new GaymingActions());
     }
 
     public Dotenv getConfig() {

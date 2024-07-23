@@ -4,10 +4,12 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 public class Helpers {
     public static final int FILE_MP3 = 0;
@@ -87,6 +89,48 @@ public class Helpers {
         };
         File file = new File("src/main/resources/assets/" + directory + path + ender);
         return FileUpload.fromData(file);
+    }
+
+    public static void addToTxtFile(String name, String content) {
+        addToTxtFile(name, content, false);
+    }
+
+    public static void addToTxtFile(String name, String content, boolean generated) {
+        try {
+            FileWriter file = new FileWriter("src/" + (generated ? "generated" : "main") + "/resources/data/" + name + ".txt", true);
+            file.append(content).append("\n").close();
+        } catch (IOException e) {
+            System.out.println("girl what the fuck, where is it?!");
+        }
+    }
+
+    @NotNull
+    public static String[] readTxtFile(String name) {
+        return readTxtFile(name, false);
+    }
+
+    @NotNull
+    public static String[] readTxtFile(String name, boolean generated) {
+        try {
+            FileReader file = new FileReader("src/" + (generated ? "generated" : "main") + "/resources/data/" + name + ".txt");
+            Scanner scanner = new Scanner(file);
+            ArrayList<String> lines = new ArrayList<>();
+            while (scanner.hasNextLine()) {
+                lines.add(scanner.nextLine());
+            }
+            return lines.toArray(new String[0]);
+        } catch (Exception e) {
+            System.out.println("girl what the fuck, where is it?!");
+        }
+        return new String[0];
+    }
+
+    public static String readTxtFile(String name, int index) {
+        return readTxtFile(name)[index];
+    }
+
+    public static String readTxtFile(String name, boolean generated, int index) {
+        return readTxtFile(name, generated)[index];
     }
 
     @NotNull

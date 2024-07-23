@@ -28,13 +28,7 @@ public class Reactor extends ListenerAdapter {
         String rawMsg = message.getContentRaw().toLowerCase();
         Emoji emoji = null;
 
-        int ma = Helpers.findIndexEitherOf(rawMsg, config.get("WORLDLOT").split(" "));
         int mb = Helpers.findIndexEitherOf(rawMsg, "x", "と");
-        int mc = Helpers.findIndexEitherOf(rawMsg, ma, config.get("LILLIPAD").split(" "));
-        if (ma >= 0 && (mb > ma || mb > mc) && mc >= 0) {
-            emoji = Helpers.containsOne(rawMsg, "kawaii", "uwu", "yaoi", "可愛", "やおい") ? Emojis.E_24 : Emojis.E_20;
-        }
-
         int md = Helpers.findIndexEitherOf(rawMsg, config.get("BRICK").split(" "));
         int me = Helpers.findIndexEitherOf(rawMsg, config.get("TRUNK").split(" "));
         if (md >= 0 && (mb > md || mb > me) && me >= 0 ||

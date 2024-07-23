@@ -135,14 +135,13 @@ public class CommandManager extends ListenerAdapter {
                         .addChoice("mental health", "mental")
         ));
         data.add(Commands.slash("roles", "List out all roles available on the server and a basic description of them all"));
-        data.add(Commands.slash("story", "Reads a story of either 偏屈な愛, The How to S** Series, or Smut.").addOptions(
+        data.add(Commands.slash("story", "Reads a story of either 偏屈な愛 or The How to S** Series").addOptions(
                 new OptionData(OptionType.STRING, "title", "name of the story you'd like to read", true)
                         .addChoice("偏屈な愛", "bigotedlove")
                         .addChoice("henkutsuna ai", "bigotedlove")
                         .addChoice("how to sex 2", "howtosex2")
                         .addChoice("how to sex 3", "howtosex3")
-                        .addChoice("how to sex 4", "howtosex4")
-                        .addChoice("smut", "smut"),
+                        .addChoice("how to sex 4", "howtosex4"),
                 new OptionData(OptionType.STRING, "additional", "would you like the prelude or the cover of the story", false)
                         .addChoice("cover", "cover")
                         .addChoice("prelude", "prelude")
@@ -186,10 +185,12 @@ public class CommandManager extends ListenerAdapter {
         switch (cmd) {
             case "geschlechtsverkehr" -> {
                 if (rightChannel) {
-                    msg = "<@" + config.get("SHADOW_ID") + ">";
-                    OptionMapping option = event.getOption("message");
-                    if (option != null) {
-                        msg += " " + option.getAsString();
+                    if (channel.getJDA().getUserById(config.get("SHADOW_ID")) != null) {
+                        msg = "<@" + config.get("SHADOW_ID") + ">";
+                        OptionMapping option = event.getOption("message");
+                        if (option != null) {
+                            msg += " " + option.getAsString();
+                        }
                     }
                 } else {
                     action = action.setEphemeral(true);
@@ -516,9 +517,9 @@ public class CommandManager extends ListenerAdapter {
             }
             case "roles" -> msg = """
                     List of self-roles:
-                    General Peoples (general_peoples) - Place away from your younger siblings' prying eyes
-                    Gnarly Shitter (gnarly_shitter)- Access to nsfw stuff
-                    Mental Health (mental_health) - Access to an open place to discuss about mental problems and to get things off your chest
+                    General Peoples - Place away from your younger siblings' prying eyes
+                    Gnarly Shitter - Access to nsfw stuff
+                    Mental Health - Access to an open place to discuss about mental problems and to get things off your chest
                                         \s
                     List of pronoun roles:
                     He/Him (he)
@@ -542,7 +543,6 @@ public class CommandManager extends ListenerAdapter {
                             case "howtosex2" -> "How to Sex 2";
                             case "howtosex3" -> "How to Sex 3";
                             case "howtosex4" -> "How to Sex 4";
-                            case "smut" -> "Smut";
                             default -> "";
                         };
                         if (page != null) {
