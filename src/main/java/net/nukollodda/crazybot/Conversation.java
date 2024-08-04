@@ -1,4 +1,4 @@
-package net.nukollodda.horniestbot;
+package net.nukollodda.crazybot;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;

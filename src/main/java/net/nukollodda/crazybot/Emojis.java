@@ -1,4 +1,4 @@
-package net.nukollodda.horniestbot;
+package net.nukollodda.crazybot;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.internal.entities.emoji.CustomEmojiImpl;

@@ -1,15 +1,14 @@
-package net.nukollodda.horniestbot;
+package net.nukollodda.crazybot;
 
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 
 public class Helpers {
     public static final int FILE_MP3 = 0;
@@ -73,6 +72,15 @@ public class Helpers {
         return false;
     }
 
+    public static <T> int forLoopBooleanErrorLoc(Predicate<T> predicate, T... types) {
+        int cnt = 0;
+        for (T type : types) {
+            if (predicate.test(type)) return cnt;
+            else cnt++;
+        }
+        return -1;
+    }
+
     @NotNull
     public static FileUpload createFileUpload(String path, int type) {
         String directory = switch (type) {
@@ -91,14 +99,31 @@ public class Helpers {
         return FileUpload.fromData(file);
     }
 
-    public static void addToTxtFile(String name, String content) {
-        addToTxtFile(name, content, false);
+    public static void setinTxtFile(String name, String content) {
+        setinTxtFile(name, content, false);
     }
 
-    public static void addToTxtFile(String name, String content, boolean generated) {
+    public static void setinTxtFile(String name, String content, boolean generated) {
         try {
             FileWriter file = new FileWriter("src/" + (generated ? "generated" : "main") + "/resources/data/" + name + ".txt", true);
             file.append(content).append("\n").close();
+        } catch (IOException e) {
+            System.out.println("girl what the fuck, where is it?!");
+        }
+    }
+
+    public static void addToTxtFile(String name, String content, int lineNum) {
+        addToTxtFile(name, content, lineNum, false);
+    }
+
+    public static void addToTxtFile(String name, String content, int lineNum, boolean generated) {
+        try {
+            FileWriter file = new FileWriter("src/" + (generated ? "generated" : "main") + "/resources/data/" + name + ".txt", false);
+            ArrayList<String> list = new ArrayList<>(List.of(Helpers.readTxtFile(name, generated)));
+            list.set(lineNum, content);
+            for (String s : list) {
+                file.append(s).append("\n").close();
+            }
         } catch (IOException e) {
             System.out.println("girl what the fuck, where is it?!");
         }

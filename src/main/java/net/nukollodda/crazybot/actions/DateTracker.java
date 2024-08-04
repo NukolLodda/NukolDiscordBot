@@ -1,6 +1,5 @@
-package net.nukollodda.horniestbot.actions;
+package net.nukollodda.crazybot.actions;
 
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 

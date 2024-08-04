@@ -1,4 +1,4 @@
-package net.nukollodda.horniestbot.actions;
+package net.nukollodda.crazybot.actions;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.*;
@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
-import net.nukollodda.horniestbot.Helpers;
+import net.nukollodda.crazybot.Helpers;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -115,6 +115,9 @@ public class CommandManager extends ListenerAdapter {
                         .addChoice("waffles", "waffles")
                         .addChoice("thing", "whatever_this_is")
         ));
+        data.add(Commands.slash("minecraft", "Does Minecraft related commands").addOptions(
+                new OptionData(OptionType.STRING, "username", "sets or changes your username", true)
+        ));
         data.add(Commands.slash("pin", "Pins the message before the command").addOptions(pinOptions));
         data.add(Commands.slash("prompt", "Asks everyone in a channel a question").addOptions(
                 new OptionData(OptionType.INTEGER, "id", "defines the specific id of the prompt question", false)
@@ -209,6 +212,7 @@ public class CommandManager extends ListenerAdapter {
                                 rightChannel ? "The links command (preset) is if you want to send a link or something.\nThe list includes: dick, geschlechtsverkehr, guide, inconspicuous, mod, music, progenitor, pumpkin, pubes, smack, smackraine, swears, and tampon" : NOT_AVIAL;
                         case "media" ->
                                 rightChannel ? "The media command (type, name) is to allow the bot to send cursed videos from NukolLodda's video gallery.\nThe list includes: britney_spears_edit (mov), cucumber_in_peach (mp4), cupcakke_binary_fission (mp4), hawt_poosay (mp4), and whatever_this_is (mov)" : NOT_AVIAL;
+                        case "minecraft" -> "The minecraft command (name) allows you to do Minecraft related activities";
                         case "role" -> "The role command (name) allows you to assign a role to yourself";
                         case "roles" ->
                                 "The roles command (name) lists out a list of available self-assignable roles on the server";
@@ -230,6 +234,7 @@ public class CommandManager extends ListenerAdapter {
                             help - For help... yay
                             links - To obtain some very interesting sites/videos
                             media - Pulls a video straight from Nukol's photo gallery!
+                            minecraft - Does Minecraft related commands.
                             role - Applies a self assignable role
                             roles - List out all roles available on the server and a basic description of them all
                             pin - Pins the message before the command
@@ -304,6 +309,23 @@ public class CommandManager extends ListenerAdapter {
                 } else {
                     action = action.setEphemeral(true);
                     msg = erMsg + UNPROVIDED;
+                }
+            }
+            case "minecraft" -> {
+                OptionMapping option = event.getOption("username");
+                if (option != null && member != null) {
+                    msg = "Username successfully registered to or changed in the system";
+                    String unid = option.getAsString();
+                    String[] list = Helpers.readTxtFile("usernames", true);
+                    int errorLoc = Helpers.forLoopBooleanErrorLoc(s -> s.equals(unid), list);
+                    if (errorLoc == -1) {
+                        Helpers.setinTxtFile("usernames", unid + " " + member.getId(), true);
+                    } else {
+                        Helpers.setinTxtFile("usernames", unid + " " + member.getId(), true);
+                    }
+                } else {
+                    action = action.setEphemeral(true);
+                    msg = erMsg + INVALID_ID;
                 }
             }
             case "pin" -> {

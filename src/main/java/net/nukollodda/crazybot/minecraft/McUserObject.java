@@ -1,4 +1,4 @@
-package net.nukollodda.horniestbot.minecraft;
+package net.nukollodda.crazybot.minecraft;
 
 public class McUserObject {
     private String username;

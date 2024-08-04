@@ -1,13 +1,13 @@
-package net.nukollodda.horniestbot.actions;
+package net.nukollodda.crazybot.actions;
 
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.utils.FileUpload;
-import net.nukollodda.horniestbot.Conversation;
-import net.nukollodda.horniestbot.Emojis;
+import net.nukollodda.crazybot.Conversation;
+import net.nukollodda.crazybot.Emojis;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.nukollodda.horniestbot.Helpers;
+import net.nukollodda.crazybot.Helpers;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

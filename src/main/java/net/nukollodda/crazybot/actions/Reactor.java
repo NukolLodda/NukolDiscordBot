@@ -1,8 +1,8 @@
-package net.nukollodda.horniestbot.actions;
+package net.nukollodda.crazybot.actions;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import net.nukollodda.horniestbot.Emojis;
-import net.nukollodda.horniestbot.Helpers;
+import net.nukollodda.crazybot.Emojis;
+import net.nukollodda.crazybot.Helpers;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

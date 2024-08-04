@@ -1,9 +1,8 @@
-package net.nukollodda.horniestbot;
+package net.nukollodda.crazybot;
 
-import net.nukollodda.horniestbot.actions.CommandManager;
-import net.nukollodda.horniestbot.actions.GaymingActions;
-import net.nukollodda.horniestbot.actions.Reactor;
-import net.nukollodda.horniestbot.actions.Replier;
+import net.nukollodda.crazybot.actions.CommandManager;
+import net.nukollodda.crazybot.actions.Reactor;
+import net.nukollodda.crazybot.actions.Replier;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -11,10 +10,10 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
-public class HorniestBot {
+public class CrazyBot {
     private final Dotenv config;
     private final ShardManager shardManager;
-    public HorniestBot() {
+    public CrazyBot() {
         config = Dotenv.configure().ignoreIfMissing().load();
         String token = config.get("TOKEN");
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(token)
@@ -25,7 +24,6 @@ public class HorniestBot {
         shardManager.addEventListener(new Reactor(config));
         shardManager.addEventListener(new Replier());
         shardManager.addEventListener(new CommandManager(config));
-        shardManager.addEventListener(new GaymingActions());
     }
 
     public Dotenv getConfig() {
@@ -38,7 +36,7 @@ public class HorniestBot {
 
     public static void main(String[] args) {
         try {
-            HorniestBot bot = new HorniestBot();
+            CrazyBot bot = new CrazyBot();
         } catch (Exception e) {
             System.out.println("Du bist eine schwanz");
         }
