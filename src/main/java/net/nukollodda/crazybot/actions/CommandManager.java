@@ -141,6 +141,7 @@ public class CommandManager extends ListenerAdapter {
         data.add(Commands.slash("story", "Reads a story of either 偏屈な愛 or The How to S** Series").addOptions(
                 new OptionData(OptionType.STRING, "title", "name of the story you'd like to read", true)
                         .addChoice("偏屈な愛", "bigotedlove")
+                        .addChoice("guide", "guide")
                         .addChoice("henkutsuna ai", "bigotedlove")
                         .addChoice("how to sex 2", "howtosex2")
                         .addChoice("how to sex 3", "howtosex3")
@@ -292,6 +293,7 @@ public class CommandManager extends ListenerAdapter {
                 if (!rightChannel) {
                     action = action.setEphemeral(true);
                     msg = NOT_AVIAL;
+
                 } else if (option != null) {
                     msg = "your beautiful piece of media will arrive shortly " + addressee;
                     String op = option.getAsString();
@@ -565,6 +567,7 @@ public class CommandManager extends ListenerAdapter {
                             case "howtosex2" -> "How to Sex 2";
                             case "howtosex3" -> "How to Sex 3";
                             case "howtosex4" -> "How to Sex 4";
+                            case "guide" -> "La Guia";
                             default -> "";
                         };
                         if (page != null) {

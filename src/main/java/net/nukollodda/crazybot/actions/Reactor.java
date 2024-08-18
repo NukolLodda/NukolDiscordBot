@@ -1,6 +1,7 @@
 package net.nukollodda.crazybot.actions;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.nukollodda.crazybot.Emojis;
 import net.nukollodda.crazybot.Helpers;
 import net.dv8tion.jda.api.entities.Message;
@@ -24,6 +25,7 @@ public class Reactor extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Message message = event.getMessage();
+        Channel channel = event.getChannel();
         if (message.getAuthor().getName().equals("Horniest Bot")) return;
         String rawMsg = message.getContentRaw().toLowerCase();
         Emoji emoji = null;
@@ -40,27 +42,29 @@ public class Reactor extends ListenerAdapter {
             emoji = Emojis.E_4;
         }
 
-        if (rawMsg.contains("nukol is hot")) {
-            emoji = Emojis.E_11;
-        }
-
-        if (rawMsg.contains("twink")) {
-            emoji = Helpers.containsOne(rawMsg, "fuck", "sex") ? Emojis.E_30 : Emojis.E_32;
-        }
-
-        String authorId = event.getAuthor().getId();
-        if (authorId.equals(config.get("SHADOW_ID"))) {
-            if (rawMsg.contains("why") || rawMsg.contains("warum")) {
-                emoji = Emojis.E_31;
-            } else {
-                int ind = rawMsg.indexOf("want");
-                emoji = ind >= 0 && rawMsg.indexOf("no") < ind &&
-                        (rawMsg.indexOf(SEX) > ind + 4 || rawMsg.indexOf("sex") > ind + 4) ? Emojis.E_25 : Emojis.E_5;
+        if (channel.getName().startsWith("gnarly") || channel.getName().equals("secretsch")) {
+            if (rawMsg.contains("nukol is hot")) {
+                emoji = Emojis.E_11;
             }
-        } else if (rawMsg.contains(SEX) && Helpers.containsOne(rawMsg, config.get("SHADOW").split(" "))) {
-            emoji = Emojis.E_25;
+
+            if (rawMsg.contains("twink")) {
+                emoji = Helpers.containsOne(rawMsg, "fuck", "sex") ? Emojis.E_30 : Emojis.E_32;
+            }
+
+            String authorId = event.getAuthor().getId();
+            if (authorId.equals(config.get("SHADOW_ID"))) {
+                if (rawMsg.contains("why") || rawMsg.contains("warum")) {
+                    emoji = Emojis.E_31;
+                } else {
+                    int ind = rawMsg.indexOf("want");
+                    emoji = ind >= 0 && rawMsg.indexOf("no") < ind &&
+                            (rawMsg.indexOf(SEX) > ind + 4 || rawMsg.indexOf("sex") > ind + 4) ? Emojis.E_25 : Emojis.E_5;
+                }
+            } else if (rawMsg.contains(SEX) && Helpers.containsOne(rawMsg, config.get("SHADOW").split(" "))) {
+                emoji = Emojis.E_25;
+            }
+            if (rawMsg.equals(SEX)) emoji = Emojis.E_1;
         }
-        if (rawMsg.equals(SEX)) emoji = Emojis.E_1;
         if (rawMsg.contains("transgenderism")) emoji = Emojis.E_9;
         if (Helpers.containsOne(rawMsg, "horny jail", "horknee jail", "no sex")) emoji = Emojis.E_21;
 
