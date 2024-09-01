@@ -12,5 +12,14 @@ public class McUserObject {
         }
         String[] parts = pair.split("\\s");
         username = parts[0];
+        dcId = Long.getLong(parts[1]);
+    }
+
+    public boolean dcidMatch(long id) {
+        return dcId == id;
+    }
+
+    public void write() {
+        // todo write to the file
     }
 }

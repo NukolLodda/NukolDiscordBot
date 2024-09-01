@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.nukollodda.crazybot.Emojis;
 import net.nukollodda.crazybot.Helpers;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,23 +44,6 @@ public class CommandManager extends ListenerAdapter {
         this.config = config;
     }
 
-    private static char getGender(Member member) {
-        char gender = 'n';
-        if (member != null) {
-            List<Role> roles = member.getRoles();
-            boolean hasMale = false;
-            boolean hasFemale = false;
-            for (Role r : roles) {
-                if (r.getName().equals("He/Him")) hasMale = true;
-                if (r.getName().equals("She/Her")) hasFemale = true;
-            }
-            if (hasMale != hasFemale) {
-                gender = hasMale ? 'm' : 'f';
-            }
-        }
-        return gender;
-    }
-
     private static void setCmds(@NotNull Event event) {
         List<CommandData> data = new ArrayList<>();
         OptionData roleOption = new OptionData(OptionType.STRING, "action", "whether to add or to remove a role", true)
@@ -69,18 +53,38 @@ public class CommandManager extends ListenerAdapter {
                 new OptionData(OptionType.INTEGER, "offset", "how far back is the comment supposed to be pinned at", false),
                 new OptionData(OptionType.STRING, "id", "the id of the message to be pinned", false));
 
+        data.add(Commands.slash("funfact", "Brings up a fun fact about our world, tailored to the type of people who would be on this server"));
         data.add(Commands.slash("geschlechtsverkehr", "call Shadow").addOptions(
+                new OptionData(OptionType.STRING, "key", "adds some good ol' nonsense to your message", false)
+                        .addChoice("title", "title")
+                        .addChoice("emoji", "emoji")
+                        .addChoice("magic", "magic")
+                        .addChoice("shadow", "shadow")
+                        .addChoice("ghost", "ghost")
+                        .addChoice("definition", "definition"),
                 new OptionData(OptionType.STRING, "message", "what to tell Shadow", false)
+        ));
+        data.add(Commands.slash("info", "Provides the information needed on this channel").addOptions(
+                new OptionData(OptionType.STRING, "specification", "gets info on particular channels on the server", false)
+                        .addChoice("general", "general")
+                        .addChoice("mental", "mental")
+                        .addChoice("gnarly", "gnarly")
+                        .addChoice("childless", "childldess")
+                        .addChoice("vc", "vc")
+                        .addChoice("gayming", "gayming")
         ));
         data.add(Commands.slash("help", "For help... yay").addOptions(
                 new OptionData(OptionType.STRING, "command", "name of the command you inquire help about", false)
+                        .addChoice("funfact", "funfact")
                         .addChoice("geschlechtsverkehr", "geschlechtsverkehr")
                         .addChoice("help", "help")
                         .addChoice("links", "links")
                         .addChoice("media", "media")
+                        .addChoice("minecraft", "minecraft")
                         .addChoice("pin", "pin")
                         .addChoice("prompt", "prompt")
                         .addChoice("pronoun", "pronoun")
+                        .addChoice("quote", "quote")
                         .addChoice("role", "role")
                         .addChoice("roles", "roles")
                         .addChoice("story", "story")
@@ -138,6 +142,7 @@ public class CommandManager extends ListenerAdapter {
                         .addChoice("mental health", "mental")
         ));
         data.add(Commands.slash("roles", "List out all roles available on the server and a basic description of them all"));
+        data.add(Commands.slash("quote", "Quotes from members on this server"));
         data.add(Commands.slash("story", "Reads a story of either 偏屈な愛 or The How to S** Series").addOptions(
                 new OptionData(OptionType.STRING, "title", "name of the story you'd like to read", true)
                         .addChoice("偏屈な愛", "bigotedlove")
@@ -161,7 +166,7 @@ public class CommandManager extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         String cmd = event.getName();
         Member member = event.getMember();
-        char gender = getGender(member);
+        char gender = Helpers.getGender(member);
         String title = switch (gender) {
             case 'm' -> "mr.";
             case 'f' -> "ms.";
@@ -187,11 +192,43 @@ public class CommandManager extends ListenerAdapter {
         String msg = erMsg + INVALID_FORMAT;
         ReplyCallbackAction action = event.deferReply();
         switch (cmd) {
+            case "funfact" -> {
+                if (rightChannel) {
+                    Random random = new Random();
+                    int val = random.nextInt(6);
+                    msg = "Fun Fact: " + switch (val) {
+                        case 1 -> "the German word for sex, geschlechtsverkehr, has 18 letters in it!";
+                        case 2 -> "the human rectum can stretch large enough to fit a whole coffee mug inside of";
+                        case 3 -> "semen contains salt, meaning that if you put it on your tongue, it would taste salty";
+                        case 4 -> "birds and crocodiles can have chlamydia";
+                        case 5 -> "there is a medical condition called rectovaginal fistula where anyone with said condition can poop out of their vagina.";
+                        default -> "menstrual blood is not purely made of red blood cells and the plasma within blood, but also dead cells along the lining of the uterus";
+                    };
+                }
+            }
             case "geschlechtsverkehr" -> {
                 if (rightChannel) {
-                    if (channel.getJDA().getUserById(config.get("SHADOW_ID")) != null) {
+                    OptionMapping key = event.getOption("key");
+                    if (key != null && key.getAsString().equals("definition")) {
+                        msg = "the German word for sex";
+                    } else {
                         msg = "<@" + config.get("SHADOW_ID") + ">";
                         OptionMapping option = event.getOption("message");
+                        if (key != null) {
+                            String k = key.getAsString();
+                            msg += switch (k) {
+                                    case "title" -> ", the usurpress of the beacon upon the light that shines from geschlechtsverkehr, ";
+                                    case "emoji" -> Emojis.E_25.getFormatted();
+                                    case "shadow" -> Emojis.E_31.getFormatted();
+                                    case "magic" -> Emojis.E_13.getFormatted();
+                                    case "ghost" -> Emojis.E_31.getFormatted() +
+                                            "\nmy milkshake brings all the boys to the yard" + Emojis.E_27.getFormatted() +
+                                            "\nand they're like, it's better than yours" + Emojis.E_21.getFormatted() +
+                                            "\ndamn right it's better than yours" + Emojis.E_19.getFormatted() +
+                                            "\nI can teach you, but I have to charge" + Emojis.E_16.getFormatted() + "\n";
+                                    default -> "";
+                            };
+                        }
                         if (option != null) {
                             msg += " " + option.getAsString();
                         }
@@ -201,11 +238,27 @@ public class CommandManager extends ListenerAdapter {
                     msg = NOT_AVIAL;
                 }
             }
+            case "info" -> {
+                OptionMapping option = event.getOption("specification");
+                String dftMsg = "Hello! I am the bot of the server, of which I can help with a variety of tasks such as pinning and unpinning or applying roles upon you.\n\nNow I want to state a couple things first, there are some rules such as if a channel starts with gnarly, it is the server's NSFW channels and likewise a channel doesn't start with that word, it means send only SFW stuff in there. NSFW content could range from tw://||sexual related topics, bodily fluids||, and a variety of other inappropriate content and as such I ask that you only send these in the channels that starts with gnarly, if you must.\n\nAlso, many members of the server including the owner of the server and me, the discord bot, are LGBTQ+ and as such I ask that you respect and support the LGBTQ+ community especially for those of us who are not fortunate enough to live in a country where LGBTQ+ people have rights.\n\nAlso I would like to state, if you want to practice a second language, please do so in #languages since while the moderators here may be multilingual, it is preferred that in all other channels, what is said are in English\n\nFinally, don't be an a-hole. Many of us on the server come from a variety of backgrounds and as such my job, as the server's bot, is to ensure that no one makes offensive remarks towards them including racist, sexist, and homophobic remarks.\n\nWith that all aside, I hope you enjoy your time on this server!";
+                if (option != null) {
+                    msg = switch (option.getAsString()) {
+                        case "mental" -> "The channels associated with mental health are #mental-health used for discussing about personal problems and #venting-no-reply for venting out problems you may have.\n\nThere are some dark things that may be said with a set of trigger warnings specifically that you may read ||abuse including domestic and sexual, suicidal thoughts, violence, and possible gore||";
+                        case "gnarly" -> "The channels associated with gnarly shitters are #gnarly-shits used as a general for the space, #gnarly-spam to mess with me, the discord bot, and #nyms-horny-shit which is for you to listen to Nym saying horny ass things.\n\nThe channels here are the server's main NSFW channels so be warned. Also, on a personal note, you can in fact chat with me, the discord bot!";
+                        case "childless" -> "The channel associated with childless are #childless-general which is the general channel for anyone who does not want to speak to children all day.";
+                        case "vc" -> "The vc's are for chatting and it is noted if the vc's name starts with gnarly, it is an NSFW vc in which the rules for the gnarly channels apply, otherwise make sure you say SFW stuff in the other vc's.";
+                        case "gayming" -> "The gayming channel is currently experimental but the purpose of which are for me, the bot, to send messages from the Minecraft server associated with this server.";
+                        default -> dftMsg;
+                    };
+                }
+            }
             case "help" -> {
                 OptionMapping option = event.getOption("command");
                 if (option != null) {
                     String op = option.getAsString();
                     msg = switch (op) {
+                        case "funfact" ->
+                                rightChannel ? "The funfact command tells you something you absolutely should know, right from my repository!" : NOT_AVIAL;
                         case "geschlechtsverkehr" ->
                             rightChannel ? "The geschlechtsverkehr command (msg) is for getting Shadow's attention" : NOT_AVIAL;
                         case "help" -> "The help command (cmd) is if you need help on anything";
@@ -222,6 +275,8 @@ public class CommandManager extends ListenerAdapter {
                         case "prompt" ->
                                 rightChannel ? "The prompt command outputs a question for the user to answer" : NOT_AVIAL;
                         case "pronoun" -> "The pronoun command (name) assigns you to your preferred pronouns";
+                        case "quote" ->
+                                rightChannel ? "The quote command quotes from one of the users on this server!" : NOT_AVIAL;
                         case "story" ->
                                 rightChannel ? "The story command (page) is for flipping to a page of the story 偏屈な愛, written by NukolLodda himself, by default, or if a book name is entered (name, page) then it's either howtosex# where # indicates 2, 3, or 4, or smut" : NOT_AVIAL;
                         case "unpin" ->
@@ -231,6 +286,7 @@ public class CommandManager extends ListenerAdapter {
                 } else {
                     msg = """
                             List of slash commands available:
+                            funfact - Tells you a "fun fact"
                             geschlechtsverkehr - ats Shadow
                             help - For help... yay
                             links - To obtain some very interesting sites/videos
@@ -241,6 +297,7 @@ public class CommandManager extends ListenerAdapter {
                             pin - Pins the message before the command
                             prompt - Outputs a random question
                             pronoun - Assigns to your preferred pronouns
+                            quote - Quotes a member on this server!
                             story - Reads a story of either 偏屈な愛, The How to S** Series, or Smut.
                             unpin - Unpins the message before the command""";
                 }
@@ -318,12 +375,17 @@ public class CommandManager extends ListenerAdapter {
                 if (option != null && member != null) {
                     msg = "Username successfully registered to or changed in the system";
                     String unid = option.getAsString();
-                    String[] list = Helpers.readTxtFile("usernames", true);
-                    int errorLoc = Helpers.forLoopBooleanErrorLoc(s -> s.equals(unid), list);
-                    if (errorLoc == -1) {
-                        Helpers.setinTxtFile("usernames", unid + " " + member.getId(), true);
-                    } else {
-                        Helpers.setinTxtFile("usernames", unid + " " + member.getId(), true);
+                    try {
+                        String[] list = Helpers.readTxtFile("usernames", true);
+                        int errorLoc = Helpers.forLoopBooleanErrorLoc(s -> s.equals(unid), list);
+                        if (errorLoc == -1) {
+                            Helpers.setinTxtFile("usernames", unid + " " + member.getId(), true);
+                        } else {
+                            Helpers.setinTxtFile("usernames", unid + " " + member.getId(), true);
+                        }
+                    } catch (FileNotFoundException e) {
+                        action = action.setEphemeral(true);
+                        msg = erMsg + NONEXISTENT;
                     }
                 } else {
                     action = action.setEphemeral(true);
@@ -407,7 +469,7 @@ public class CommandManager extends ListenerAdapter {
                         case 5 -> "fuck a twink";
                         case 6 -> "have geschlechtsverkehr";
                         case 7 -> "eat onigiri marinated in a twink's jizz and use his and some other twink's dicks as chopsticks";
-                        case 8 -> "be in an orgy with nothing but gay and bi men who are all horny as shit (for all the boys reading this)";
+                        case 8 -> "have ur dick sandwiched between the ass checks of a twink and the abs of a twunk";
                         case 9 -> "be part of a smut";
                         case 10 -> "slid ur dick between a pair of tits";
                         case 11 -> "shove ur own dick up ur own ass";
@@ -428,12 +490,12 @@ public class CommandManager extends ListenerAdapter {
                         case 26 -> "put ur penis inside ur ass";
                         case 27 -> "jizz out ur mouth";
                         case 28 -> "have sex with a lump of turd";
-                        case 29 -> "consume gluten free semen salad";
+                        case 29 -> "create \"yogurt\" with ur \"hole\" and then make a twink drink it up using his dick hole";
                         case 30 -> "sniff a twink's cum sock and wear it on ur dick";
                         case 31 -> "create a potion using vaginal discharge and semen and label it chlamydia giver";
                         case 32 -> "milk a twink's nipples and then mix his milk with his other \"milk\" before putting it all in \"cereal\"";
                         case 33 -> "replace ur sock wardrobe with nothing but all the cumsocks of twinks";
-                        case 34 -> "shove a pineapple up ur pussy and make pina colada after masturbation";
+                        case 34 -> "shove a pineapple up ur pussy and make \"pina colada\" after masturbation";
                         case 35 -> "masturbate to a porno u make urself";
                         case 36 -> "give a transman head while simultaneously having ur dick up his mouth";
                         case 37 -> "give a transwoman head while simultaneously having ur dick up her mouth";
@@ -441,7 +503,7 @@ public class CommandManager extends ListenerAdapter {
                         case 39 -> "using precum as lip gloss before giving someone head";
                         case 40 -> "shove a clit up ur pussy hole and then jizzing out of ur pussy hole into her pussy hole";
                         case 41 -> "shove a pineapple up ur pussy and make pina colada after touching another woman's titties and then making her drink ur pussy pina colada through her pussy";
-                        case 42 -> "be in an orgy of nothing but lesbian and bi woman who are all talented in making \"pina colada\" (for all the girls reading this)";
+                        case 42 -> "make \"pina colada\" while shoving ur clit within a sponge of pussies";
                         case 43 -> "wrap ur clit in ur pubes like it's an article of clothing";
                         case 44 -> "shove a handbag up ur pussy";
                         case 45 -> "shove cheese up ur pussy before squeezing a pineapple to make \"pina colada\"";
@@ -496,6 +558,29 @@ public class CommandManager extends ListenerAdapter {
                 } else {
                     action = action.setEphemeral(true);
                     msg = erMsg;
+                }
+            }
+            case "quote" -> {
+                Random random = new Random();
+                int q = random.nextInt(13);
+                if (rightChannel) {
+                    msg = "> " + switch (q) {
+                        case 1 -> "I nearly forgot my bot reacts to the word twink\n\t\t\\- NukolLodda 2024";
+                        case 2 -> "Geschlechtsverkehr, a most beautiful word within the German dictionary\n\t\t\\- NukolLodda 2024";
+                        case 3 -> "Yellowcake is the best type of cake\n\t\t\\- NukolLodda 2022";
+                        case 4 -> "More to grab for the guy you want to fuck I guess\n\t\t\\- Silly Nym 2024";
+                        case 5 -> "He's definitely in denial\n\t\t\\- Silly Nym 2024";
+                        case 6 -> "I'm fully gay :p\n\t\t\\- Silly Nym 2024";
+                        case 7 -> "Imazusma\n\t\t\\- Ali Fallen 2024";
+                        case 8 -> "How do you sleep normally?\n\t\t\\- Ali Fallen 2024";
+                        case 9 -> "Tell me if you pull any twinks while there\n\t\t\\- Ali Fallen 2024";
+                        case 10 -> "You think pre cum would be a good lip gloss? Cause I know people use cum like facemarks\n\t\t\\- Ali Fallen 2024";
+                        case 11 -> "It's best to let the sink come in and not sink in the cum\n\t\t\\- Ali Fallen 2024";
+                        case 12 -> "TRUE I love me some pussy boys\n\t\t\\= Svarog Burned 2024";
+                        default -> "A spider wanting to fuck a man and make him spiderman\n\t\t\\-Ali Fallen 2024";
+                    };
+                } else {
+                    msg = NOT_AVIAL;
                 }
             }
             case "role" -> {
@@ -572,7 +657,7 @@ public class CommandManager extends ListenerAdapter {
                         };
                         if (page != null) {
                             int chapter = page.getAsInt();
-                            File file = new File("src/main/resources/data/" + name + "/chapter" + chapter + ".txt");
+                            File file = new File("src/main/resources/data/stories/" + name + "/chapter" + chapter + ".txt");
                             try {
                                 Scanner scanner = new Scanner(file);
                                 StringBuilder response = new StringBuilder("# " + storyName + ": Chapter " + chapter + " #\n");

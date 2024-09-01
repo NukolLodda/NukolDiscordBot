@@ -38,7 +38,7 @@ public class CrazyBot {
         try {
             CrazyBot bot = new CrazyBot();
         } catch (Exception e) {
-            System.out.println("Du bist eine schwanz");
+            System.out.println("Du bist ein schwanz");
         }
     }
 }

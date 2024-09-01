@@ -1,5 +1,7 @@
 package net.nukollodda.crazybot;
 
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -72,6 +74,7 @@ public class Helpers {
         return false;
     }
 
+    @SafeVarargs
     public static <T> int forLoopBooleanErrorLoc(Predicate<T> predicate, T... types) {
         int cnt = 0;
         for (T type : types) {
@@ -79,6 +82,16 @@ public class Helpers {
             else cnt++;
         }
         return -1;
+    }
+
+    public static char getLetterFromSymbol(char c) {
+        return switch (c) {
+            case '!', '1' -> 'i';
+            case '3' -> 'e';
+            case '@', '4' -> 'a';
+            case '$' -> 's';
+            default -> ' ';
+        };
     }
 
     @NotNull
@@ -130,31 +143,26 @@ public class Helpers {
     }
 
     @NotNull
-    public static String[] readTxtFile(String name) {
+    public static String[] readTxtFile(String name) throws FileNotFoundException {
         return readTxtFile(name, false);
     }
 
     @NotNull
-    public static String[] readTxtFile(String name, boolean generated) {
-        try {
-            FileReader file = new FileReader("src/" + (generated ? "generated" : "main") + "/resources/data/" + name + ".txt");
-            Scanner scanner = new Scanner(file);
-            ArrayList<String> lines = new ArrayList<>();
-            while (scanner.hasNextLine()) {
-                lines.add(scanner.nextLine());
-            }
-            return lines.toArray(new String[0]);
-        } catch (Exception e) {
-            System.out.println("girl what the fuck, where is it?!");
+    public static String[] readTxtFile(String name, boolean generated) throws FileNotFoundException {
+        FileReader file = new FileReader("src/" + (generated ? "generated" : "main") + "/resources/data/" + name + ".txt");
+        Scanner scanner = new Scanner(file);
+        ArrayList<String> lines = new ArrayList<>();
+        while (scanner.hasNextLine()) {
+            lines.add(scanner.nextLine());
         }
-        return new String[0];
+        return lines.toArray(new String[0]);
     }
 
-    public static String readTxtFile(String name, int index) {
+    public static String readTxtFile(String name, int index) throws FileNotFoundException {
         return readTxtFile(name)[index];
     }
 
-    public static String readTxtFile(String name, boolean generated, int index) {
+    public static String readTxtFile(String name, boolean generated, int index) throws FileNotFoundException {
         return readTxtFile(name, generated)[index];
     }
 
@@ -176,5 +184,22 @@ public class Helpers {
     public static Scanner getReader(String path) throws FileNotFoundException {
         File file = new File("src/main/resources/data/" + path);
         return new Scanner(file);
+    }
+
+    public static char getGender(Member member) {
+        char gender = 'n';
+        if (member != null) {
+            List<Role> roles = member.getRoles();
+            boolean hasMale = false;
+            boolean hasFemale = false;
+            for (Role r : roles) {
+                if (r.getName().equals("He/Him")) hasMale = true;
+                if (r.getName().equals("She/Her")) hasFemale = true;
+            }
+            if (hasMale != hasFemale) {
+                gender = hasMale ? 'm' : 'f';
+            }
+        }
+        return gender;
     }
 }
